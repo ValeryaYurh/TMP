@@ -6,19 +6,13 @@ using LR2.Utils;
 
 namespace LR2.Entities
 {
-    // Реализует интерфейс из Contracts/ITransportService.cs (задание 1.1, п. e, f)
     public class TransportCompany : ITransportService
     {
         private readonly ICustomCollection<Tarif> _tarifs = new MyCustomCollection<Tarif>();
         private readonly ICustomCollection<Client> _clients = new MyCustomCollection<Client>();
 
-        // События варианта 7 (задание 2.1, п. c, индивидуальное задание №7).
-        // Используются стандартные делегаты EventHandler<TEventArgs>.
-
-        // При изменении списка тарифов или списка клиентов — подписан Journal
         public event EventHandler<CompanyDataChangedEventArgs>? DataChanged;
 
-        // При заказе перевозки клиентом — подписан Program
         public event EventHandler<OrderPlacedEventArgs>? OrderPlaced;
 
         public void AddTarif(Tarif tarif)
@@ -48,20 +42,26 @@ namespace LR2.Entities
             return client.GetOrdersSum();
         }
 
-        // Суммарная стоимость всех заказов фирмы (Generic Math)
         public double GetTotalOrdersSum()
         {
-            return GenericMathHelper.Sum(_clients, c => c.GetOrdersSum());
+            return GenericMathHelper.Sum(_clients, delegate (Client c)
+            {
+                return c.GetOrdersSum();
+            });
         }
 
-        // Стоимость заказов на определённое направление
         public double GetSumByDirection(string direction)
         {
-            return GenericMathHelper.Sum(_clients, client =>
-                GenericMathHelper.Sum(client.GetOrders(), order =>
-                    order.Tarif.Direction.Equals(direction, StringComparison.OrdinalIgnoreCase)
-                        ? order.GetCost()
-                        : 0.0));
+            return GenericMathHelper.Sum(_clients, delegate (Client client)
+            {
+                return GenericMathHelper.Sum(client.GetOrders(), delegate (Order order)
+                {
+                    if (order.Tarif.Direction.Equals(direction, StringComparison.OrdinalIgnoreCase))
+                        return order.GetCost();
+
+                    return 0.0;
+                });
+            });
         }
 
         public Client? FindClientByName(string name)
@@ -75,7 +75,14 @@ namespace LR2.Entities
             return null;
         }
 
-        public ICustomCollection<Client> GetClients() => _clients;
-        public ICustomCollection<Tarif> GetTarifs() => _tarifs;
+        public ICustomCollection<Client> GetClients()
+        {
+            return _clients;
+        }
+
+        public ICustomCollection<Tarif> GetTarifs()
+        {
+            return _tarifs;
+        }
     }
 }

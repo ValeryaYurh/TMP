@@ -2,7 +2,6 @@ using System;
 
 namespace LR2.Events
 {
-    // Аргумент события "клиент заказал перевозку" (задание 2.1, п. c)
     public class OrderPlacedEventArgs : EventArgs
     {
         public string ClientName { get; }

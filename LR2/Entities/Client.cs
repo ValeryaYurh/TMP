@@ -28,13 +28,22 @@ namespace LR2.Entities
             _orders.Add(order);
         }
 
-        public ICustomCollection<Order> GetOrders() => _orders;
+        public ICustomCollection<Order> GetOrders()
+        {
+            return _orders;
+        }
 
-        // Сумма заказов клиента (используется Generic Math через GenericMathHelper)
         public double GetOrdersSum()
         {
-            double sum = GenericMathHelper.Sum(_orders, o => o.GetCost());
-            return Type == ClientType.VIP ? sum * 0.9 : sum;
+            double sum = GenericMathHelper.Sum(_orders, delegate (Order o)
+            {
+                return o.GetCost();
+            });
+
+            if (Type == ClientType.VIP)
+                return sum * 0.9;
+
+            return sum;
         }
     }
 }

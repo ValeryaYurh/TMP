@@ -2,8 +2,6 @@ using System;
 
 namespace LR2.Exceptions
 {
-    // Собственное исключение: бросается из MyCustomCollection<T>.Remove(T item),
-    // если удаляемый элемент отсутствует в коллекции (задание 2.1, п. b)
     public class ItemNotFoundException : Exception
     {
         public ItemNotFoundException()

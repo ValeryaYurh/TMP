@@ -3,8 +3,6 @@ using LR2.Interfaces;
 
 namespace LR2.Utils
 {
-    // Вычисление сумм с использованием интерфейсов пространства имён
-    // System.Numerics (Generic Math), как того требует задание.
     public static class GenericMathHelper
     {
         public static TNumber Sum<T, TNumber>(ICustomCollection<T> collection, Func<T, TNumber> selector)

@@ -1,4 +1,5 @@
 using LR2.Entities;
+using LR2.Events;
 using LR2.Exceptions;
 using LR2.Interfaces;
 
@@ -11,14 +12,18 @@ namespace LR2
             TransportCompany company = new TransportCompany();
             Journal journal = new Journal();
 
-            company.DataChanged += (sender, e) => journal.LogEvent("TransportCompany", e.Description);
+            company.DataChanged += delegate (object? sender, CompanyDataChangedEventArgs e)
+            {
+                journal.LogEvent("TransportCompany", e.Description);
+            };
 
-            company.OrderPlaced += (sender, e) =>
+            company.OrderPlaced += delegate (object? sender, OrderPlacedEventArgs e)
+            {
                 Console.WriteLine($"[Событие] Клиент \"{e.ClientName}\" заказал перевозку: " +
                                    $"направление \"{e.Direction}\", вес {e.Weight} кг, стоимость {e.Cost:F2} руб.");
+            };
 
             EnterData(company);
-
 
             Console.WriteLine("\nВариант 7. Фирма грузоперевозок\n");
 
@@ -49,7 +54,7 @@ namespace LR2
 
             try
             {
-                Tarif bad = tarifs[100]; 
+                Tarif bad = tarifs[100];
             }
             catch (IndexOutOfRangeException ex)
             {
@@ -59,7 +64,7 @@ namespace LR2
             try
             {
                 Tarif unknown = new Tarif("Неизвестное направление", 1);
-                tarifs.Remove(unknown); 
+                tarifs.Remove(unknown);
             }
             catch (ItemNotFoundException ex)
             {

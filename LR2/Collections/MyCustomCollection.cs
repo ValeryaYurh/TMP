@@ -4,8 +4,6 @@ using LR2.Interfaces;
 
 namespace LR2.Collections
 {
-    // Реализация ICustomCollection<T> на связном списке.
-    // Стандартные коллекции и массивы не используются (задание 1.1, п. d).
     public class MyCustomCollection<T> : ICustomCollection<T>
     {
         private class Node
@@ -25,12 +23,24 @@ namespace LR2.Collections
         private Node? _cursor;
         private int _count;
 
-        public int Count => _count;
+        public int Count
+        {
+            get
+            {
+                return _count;
+            }
+        }
 
         public T this[int index]
         {
-            get => GetNodeAt(index).Value;
-            set => GetNodeAt(index).Value = value;
+            get
+            {
+                return GetNodeAt(index).Value;
+            }
+            set
+            {
+                GetNodeAt(index).Value = value;
+            }
         }
 
         private Node GetNodeAt(int index)
@@ -95,7 +105,6 @@ namespace LR2.Collections
                 current = current.Next;
             }
 
-            // Элемент не найден ни в одном узле связного списка
             throw new ItemNotFoundException();
         }
 
@@ -149,9 +158,6 @@ namespace LR2.Collections
             return value;
         }
 
-        // Реализация обхода коллекции оператором foreach (задание 2.1, п. a).
-        // Идём по узлам связного списка независимо от _cursor, чтобы foreach
-        // не конфликтовал с Reset/Next/Current.
         public IEnumerator<T> GetEnumerator()
         {
             Node? node = _head;
@@ -162,6 +168,9 @@ namespace LR2.Collections
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }
