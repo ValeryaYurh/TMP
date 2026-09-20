@@ -1,8 +1,10 @@
 using System.Numerics;
-using _553503_YURHILEVICH_Lab1.Interfaces;
+using LR2.Interfaces;
 
-namespace _553503_YURHILEVICH_Lab1.Utils
+namespace LR2.Utils
 {
+    // Вычисление сумм с использованием интерфейсов пространства имён
+    // System.Numerics (Generic Math), как того требует задание.
     public static class GenericMathHelper
     {
         public static TNumber Sum<T, TNumber>(ICustomCollection<T> collection, Func<T, TNumber> selector)

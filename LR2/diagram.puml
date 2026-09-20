@@ -1,0 +1,150 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontName "Consolas"
+skinparam classFontSize 12
+skinparam shadowing true
+skinparam ArrowColor #2E8B57
+skinparam ArrowThickness 2
+
+package "Interfaces" {
+    interface "IEnumerable<T>" as IEnumerableT
+
+    interface ICustomCollection<T> {
+        + T this[int index] {get; set;}
+        + int Count {get;}
+        --
+        + void Reset()
+        + void Next()
+        + T Current()
+        + void Add(T item)
+        + void Remove(T item)
+        + T RemoveCurrent()
+    }
+    ICustomCollection ..|> IEnumerableT
+}
+
+package "Collections" {
+    class MyCustomCollection<T> {
+        - Node? _head
+        - Node? _tail
+        - Node? _cursor
+        - int _count
+        --
+        + IEnumerator<T> GetEnumerator()
+    }
+}
+
+package "Exceptions" {
+    class ItemNotFoundException
+}
+
+package "Events" {
+    class CompanyDataChangedEventArgs {
+        + string Description {get;}
+    }
+    class OrderPlacedEventArgs {
+        + string ClientName {get;}
+        + string Direction {get;}
+        + double Weight {get;}
+        + double Cost {get;}
+    }
+}
+
+package "Contracts" {
+    interface ITransportService {
+        + void AddTarif(Tarif tarif)
+        + void AddClient(Client client)
+        + void MakeOrder(Client client, Tarif tarif, double weight)
+        + double GetClientOrderSum(Client client)
+        + double GetTotalOrdersSum()
+        + double GetSumByDirection(string direction)
+    }
+}
+
+package "Entities" {
+    enum ClientType {
+        Regular
+        VIP
+    }
+
+    class TransportCompany {
+        - ICustomCollection<Tarif> _tarifs
+        - ICustomCollection<Client> _clients
+        --
+        + event EventHandler<CompanyDataChangedEventArgs> DataChanged
+        + event EventHandler<OrderPlacedEventArgs> OrderPlaced
+        --
+        + void AddTarif(Tarif tarif)
+        + void AddClient(Client client)
+        + void MakeOrder(Client client, Tarif tarif, double weight)
+        + double GetClientOrderSum(Client client)
+        + double GetTotalOrdersSum()
+        + double GetSumByDirection(string direction)
+        + Client? FindClientByName(string name)
+        + ICustomCollection<Client> GetClients()
+        + ICustomCollection<Tarif> GetTarifs()
+    }
+
+    class Journal {
+        - ICustomCollection<string> _records
+        --
+        + void LogEvent(string entityName, string description)
+        + void PrintAllEvents()
+    }
+
+    class Client {
+        - string _name
+        - ICustomCollection<Order> _orders
+        --
+        + string Name {get; set;}
+        + ClientType Type {get; set;}
+        + void AddOrder(Order order)
+        + ICustomCollection<Order> GetOrders()
+        + double GetOrdersSum()
+    }
+
+    class Tarif {
+        + string Direction {get; set;}
+        + double CostPerKg {get; set;}
+        --
+        + Tarif(string direction, double costPerKg)
+    }
+
+    class Order {
+        + Tarif Tarif {get; set;}
+        + double Weight {get; set;}
+        --
+        + Order(Tarif tarif, double weight)
+        + double GetCost()
+    }
+}
+
+package "Utils" {
+    class GenericMathHelper {
+        + {static} TNumber Sum<T, TNumber>(ICustomCollection<T> collection, Func<T, TNumber> selector)
+    }
+}
+
+' Реализация интерфейсов
+MyCustomCollection ..|> ICustomCollection
+TransportCompany ..|> ITransportService
+
+' Ассоциации
+TransportCompany "1" --> "*" Client : manages >
+TransportCompany "1" --> "*" Tarif : offers >
+Client "1" --> "*" Order : places >
+Order "1" --> "1" Tarif : applies >
+TransportCompany --> MyCustomCollection : stores in >
+Client --> MyCustomCollection : stores in >
+Journal --> MyCustomCollection : stores in >
+
+' События (задание 2.1, вариант 7)
+TransportCompany ..> CompanyDataChangedEventArgs : raises DataChanged >
+TransportCompany ..> OrderPlacedEventArgs : raises OrderPlaced >
+Journal ..> TransportCompany : subscribes to DataChanged >
+Program ..> TransportCompany : subscribes to OrderPlaced >
+
+' Исключения
+MyCustomCollection ..> ItemNotFoundException : throws >
+
+@enduml

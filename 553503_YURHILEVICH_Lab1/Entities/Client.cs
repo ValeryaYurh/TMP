@@ -42,11 +42,18 @@ namespace _553503_YURHILEVICH_Lab1.Entities
 
         public ICustomCollection<Order> GetOrders() => _orders;
 
-        // Сумма заказов клиента (используется Generic Math через GenericMathHelper)
         public double GetOrdersSum()
         {
             double sum = GenericMathHelper.Sum(_orders, o => o.GetCost());
             return Type == ClientType.VIP ? sum * 0.9 : sum;
+        }
+    }
+
+    public class VipClient:Client
+    {
+        public VipClient():base("",ClientType.Regular)
+        {
+            
         }
     }
 }

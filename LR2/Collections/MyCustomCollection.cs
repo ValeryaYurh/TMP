@@ -1,7 +1,11 @@
-using _553503_YURHILEVICH_Lab1.Interfaces;
+using System.Collections;
+using LR2.Exceptions;
+using LR2.Interfaces;
 
-namespace _553503_YURHILEVICH_Lab1.Collections
+namespace LR2.Collections
 {
+    // Реализация ICustomCollection<T> на связном списке.
+    // Стандартные коллекции и массивы не используются (задание 1.1, п. d).
     public class MyCustomCollection<T> : ICustomCollection<T>
     {
         private class Node
@@ -61,7 +65,8 @@ namespace _553503_YURHILEVICH_Lab1.Collections
 
         public void Remove(T item)
         {
-            if (_head == null) return;
+            if (_head == null)
+                throw new ItemNotFoundException();
 
             if (EqualityComparer<T>.Default.Equals(_head.Value, item))
             {
@@ -89,6 +94,9 @@ namespace _553503_YURHILEVICH_Lab1.Collections
                 prev = current;
                 current = current.Next;
             }
+
+            // Элемент не найден ни в одном узле связного списка
+            throw new ItemNotFoundException();
         }
 
         public void Reset()
@@ -140,5 +148,20 @@ namespace _553503_YURHILEVICH_Lab1.Collections
             _count--;
             return value;
         }
+
+        // Реализация обхода коллекции оператором foreach (задание 2.1, п. a).
+        // Идём по узлам связного списка независимо от _cursor, чтобы foreach
+        // не конфликтовал с Reset/Next/Current.
+        public IEnumerator<T> GetEnumerator()
+        {
+            Node? node = _head;
+            while (node != null)
+            {
+                yield return node.Value;
+                node = node.Next;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

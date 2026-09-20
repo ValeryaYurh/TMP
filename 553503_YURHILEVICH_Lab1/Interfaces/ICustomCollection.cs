@@ -1,9 +1,8 @@
 namespace _553503_YURHILEVICH_Lab1.Interfaces
 {
-    // Обобщённый интерфейс пользовательской коллекции (задание 1.1, п. c)
-    public interface ICustomCollection<T>
+    public interface ICustomCollection<out T>
     {
-        T this[int index] { get; set; }
+        T this[int index] { get; }
 
         int Count { get; }
 
