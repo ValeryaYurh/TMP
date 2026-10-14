@@ -1,0 +1,94 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontName "Consolas"
+skinparam classFontSize 12
+skinparam shadowing true
+skinparam ArrowColor #2E8B57
+skinparam ArrowThickness 2
+
+package "Contracts" {
+    interface ITransportService {
+        + void AddTarif(string direction, double costPerKg)
+        + void AddClient(Client client)
+        + void MakeOrder(Client client, string direction, double weight)
+        + List<string> GetTarifNamesSortedByCost()
+        + double GetTotalRevenue()
+        + double GetClientTotalCost(Client client)
+        + string? GetClientWithMaxPayment()
+        + int GetClientsCountAbovePayment(double threshold)
+        + Dictionary<string, double> GetClientAmountsByTarif(Client client)
+    }
+}
+
+package "Events" {
+    class CompanyDataChangedEventArgs {
+        + string Description {get;}
+    }
+    class OrderPlacedEventArgs {
+        + string ClientName {get;}
+        + string Direction {get;}
+        + double Weight {get;}
+        + double Cost {get;}
+    }
+}
+
+package "Entities" {
+    enum ClientType {
+        Regular
+        VIP
+    }
+
+    class Tarif {
+        + double CostPerKg {get; set;}
+    }
+
+    class Order {
+        + string Direction {get; set;}
+        + double Weight {get; set;}
+    }
+
+    class Client {
+        + string Name {get; set;}
+        + ClientType Type {get; set;}
+        + List<Order> Orders {get; set;}
+    }
+
+    class Journal {
+        - List<string> _records
+        --
+        + void LogEvent(string entityName, string description)
+        + void PrintAllEvents()
+    }
+
+    class TransportCompany {
+        - Dictionary<string, Tarif> _tarifs
+        - List<Client> _clients
+        --
+        + event EventHandler<CompanyDataChangedEventArgs> DataChanged
+        + event EventHandler<OrderPlacedEventArgs> OrderPlaced
+        --
+        + void AddTarif(string direction, double costPerKg)
+        + void AddClient(Client client)
+        + void MakeOrder(Client client, string direction, double weight)
+        + List<string> GetTarifNamesSortedByCost()
+        + double GetTotalRevenue()
+        + double GetClientTotalCost(Client client)
+        + string? GetClientWithMaxPayment()
+        + int GetClientsCountAbovePayment(double threshold)
+        + Dictionary<string, double> GetClientAmountsByTarif(Client client)
+        + List<Client> GetClients()
+    }
+}
+
+TransportCompany ..|> ITransportService
+
+TransportCompany "1" --> "*" Client : manages >
+TransportCompany "1" o-- "*" Tarif : Dictionary<string, Tarif> >
+Client "1" --> "*" Order : List<Order> >
+
+TransportCompany ..> CompanyDataChangedEventArgs : raises DataChanged >
+TransportCompany ..> OrderPlacedEventArgs : raises OrderPlaced >
+Journal ..> TransportCompany : subscribes to DataChanged >
+Program ..> TransportCompany : subscribes to OrderPlaced >
+
+@enduml
